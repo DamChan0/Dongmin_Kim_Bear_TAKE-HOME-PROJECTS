@@ -1,32 +1,36 @@
+#define TYPE_H
+#ifdef TYPE_H
+#include <cstdint>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
-typedef struct Account
+class Account
 {
-    std::string accountNumber;
-    double balance;
-} Account_t;
-
-class ATMStatus
-{
-  private:
-    bool isATMOn;
-    bool isCardInserted;
-    bool isPinEntered;
-    bool isAccountSelected;
-
   public:
-    ATMStatus() : isATMOn(false), isCardInserted(false), isPinEntered(false), isAccountSelected(false)
-    {
-    }
+    std::string accountHolder; // 계좌 소유자
+    double balance;            // 잔액
+    std::string accountType;   // 계좌 유형
+
+    // JSON 변환을 위한 함수 선언
+    friend void to_json(nlohmann::json &j, const Account &account);
+    friend void from_json(const nlohmann::json &j, Account &account);
 };
 
-class UserInfo
-{
-  private:
-    std::string cardNumber;
-    uint64_t pinPassword;
-    std::vector<Account_t> accounts;
+using AccountList = std::map<std::string, Account>;
 
-  public:
-};
+void to_json(nlohmann::json &j, const Account &account)
+{
+    j = {
+        {"accountHolder", account.accountHolder},
+        {"balance", account.balance},
+    };
+}
+
+void from_json(const nlohmann::json &j, Account &account)
+{
+    j.at("accountHolder").get_to(account.accountHolder);
+    j.at("balance").get_to(account.balance);
+}
+
+#endif // TYPE_H

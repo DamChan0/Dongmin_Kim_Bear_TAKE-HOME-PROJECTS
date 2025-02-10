@@ -1,0 +1,9 @@
+{
+    "1234567890": {
+        "accountHolder": "John Doe",
+        "balance": 1000.0
+    },
+    "0987654321": {
+        "accountHolder": "Jane Smith",
+        "balance": 2500.0    }
+}
