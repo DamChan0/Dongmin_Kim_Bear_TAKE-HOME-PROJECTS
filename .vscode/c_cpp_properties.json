@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/BankAPI"
+                "${workspaceFolder}/BankAPI",
+                "${workspaceFolder}/ATMModule",
+                "${workspaceFolder}/UserModule"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang-18",
