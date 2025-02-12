@@ -1,6 +1,10 @@
+#ifndef ATMMODULE_H
+#define ATMMODULE_H
+
 #include <type.h>
 
-class ATMStatus {
+class ATMStatus
+{
    private:
     bool isATMOn;
     bool isCardInserted;
@@ -8,7 +12,13 @@ class ATMStatus {
     bool isAccountSelected;
 
    public:
-    ATMStatus() : isATMOn(false), isCardInserted(false), isPinEntered(false), isAccountSelected(false) {}
+    ATMStatus()
+        : isATMOn(false),
+          isCardInserted(false),
+          isPinEntered(false),
+          isAccountSelected(false)
+    {
+    }
 
     void setATMOn() { isATMOn = true; }
 
@@ -32,3 +42,5 @@ class ATMStatus {
 
     void checkStatus();
 };
+
+#endif  // ATMMODULE_H
