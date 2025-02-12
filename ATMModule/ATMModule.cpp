@@ -25,7 +25,7 @@ void ATMStatus::processATMStatus()
         }
 
         Command cmd = flowModule.commandQueue.pop();
-        std::cout << "[ATM] Command received: " << cmd.RX << std::endl;
+        // std::cout << "[ATM] Command received: " << cmd.RX << std::endl;
         if (cmd.RX != "ATM")
         {
             flowModule.commandQueue.push(cmd);
@@ -67,24 +67,13 @@ void ATMStatus::processATMStatus()
                 case CommandType::USER_VERIFY_PIN:
                     if (getCardInsertedStatus())
                     {
-                        if (cmd.data.has_value())  // ✅ 값이 있을 때만 실행
+                        setPin();
+                        bool pinVerified = BankAPI::verifyPin(cmd.cardNumber, cmd.pin);
+
+                        if (cmd.callback != nullptr)
                         {
-                            try
-                            {
-                                auto callback =
-                                    std::any_cast<std::function<void(bool)>>(cmd.data);
-                                if (callback)  // ✅ 콜백이 유효한지 확인
-                                {
-                                    callback(pinVerified);  // ✅ User에게 결과 반환
-                                }
-                            }
-                            catch (const std::bad_any_cast &e)
-                            {
-                                std::cerr << "[ERROR] std::any_cast failed: " << e.what()
-                                          << std::endl;
-                            }
+                            cmd.callback(pinVerified);
                         }
-                        break;
                     }
                     else
                     {

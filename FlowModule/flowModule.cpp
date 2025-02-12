@@ -59,17 +59,18 @@ void FlowModule::processCommands()
                     case CommandType::USER_VERIFY_PIN:
                         std::cout << "[FlowModule] Verifying PIN for " << cmd.cardNumber
                                   << std::endl;
-                        newCmd = {cmd.type, "FlowModule", "ATM", cmd.cardNumber, cmd.pin,
-                                  0,        cmd.data};
+                        newCmd = {
+                            cmd.type,    "FlowModule", "ATM", cmd.cardNumber, cmd.pin, 0,
+                            0,
+                            cmd.callback  // ✅ 올바르게 전달됨을 보장
+                        };
+
+                        if (cmd.callback == nullptr)
+                        {
+                            std::cerr << "[ERROR] Callback is nullptr in FlowModule!"
+                                      << std::endl;
+                        }
                         commandQueue.push(newCmd);
-                        // if (BankAPI::verifyPin(cmd.cardNumber, cmd.pin))
-                        // {
-                        //     std::cout << "[FlowModule] PIN Verified!" << std::endl;
-                        // }
-                        // else
-                        // {
-                        //     std::cout << "[ERROR] PIN Incorrect!" << std::endl;
-                        // }
                         break;
 
                     case CommandType::USER_DEPOSIT:

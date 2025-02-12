@@ -29,7 +29,8 @@ struct Command
     std::string cardNumber = "";
     uint64_t pin = 0;
     double amount = 0;
-    std::any data = std::function<void(bool)>{};
+    std::any data;
+    std::function<void(bool)> callback = nullptr;
 };
 
 class FlowModule

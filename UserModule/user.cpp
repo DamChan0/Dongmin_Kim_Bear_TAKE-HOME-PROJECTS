@@ -140,8 +140,9 @@ void User::processUserInput()
                           cardNumber,
                           pin,
                           0,
-                          std::bind(&User::onPinVerificationResult, this,
-                                    std::placeholders::_1)};
+                          0,
+                          [this](bool pinVerified)
+                          { onPinVerificationResult(pinVerified); }};
 
                 flowModule.addCommand(newCmd);
 

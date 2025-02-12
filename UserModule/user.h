@@ -24,7 +24,6 @@ class User
    public:
     User(FlowModule& fm);
     ~User();
-    void verifyPin();
 };
 
 #endif  // USER_H
