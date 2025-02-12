@@ -3,6 +3,10 @@
 
 #include <type.h>
 
+#include <thread>
+
+class FlowModule;
+
 class ATMStatus
 {
    private:
@@ -11,14 +15,10 @@ class ATMStatus
     bool isPinEntered;
     bool isAccountSelected;
 
-   public:
-    ATMStatus()
-        : isATMOn(false),
-          isCardInserted(false),
-          isPinEntered(false),
-          isAccountSelected(false)
-    {
-    }
+    std::string cardNumber;
+    bool pinVerified;
+
+    std::thread ATMThread;
 
     void setATMOn() { isATMOn = true; }
 
@@ -41,6 +41,12 @@ class ATMStatus
     bool getAccountSelectedStatus() const { return isAccountSelected; }
 
     void checkStatus();
+
+   public:
+    ATMStatus(FlowModule& fm);
+
+    FlowModule& flowModule;
+    void processATMStatus();
 };
 
 #endif  // ATMMODULE_H

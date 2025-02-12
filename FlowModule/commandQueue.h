@@ -2,6 +2,7 @@
 #define COMMAND_QUEUE_H
 
 #include <condition_variable>
+#include <iostream>
 #include <mutex>
 #include <queue>
 
@@ -18,6 +19,7 @@ class CommandQueue
     {
         std::lock_guard<std::mutex> lock(mtx);
         queue.push(command);
+        // std::cout << "Command pushed" << std::endl;
         cv.notify_one();
     }
 
@@ -26,6 +28,7 @@ class CommandQueue
         std::unique_lock<std::mutex> lock(mtx);
         cv.wait(lock, [this] { return !queue.empty(); });
         T command = queue.front();
+        // std::cout << "Command popped" << std::endl;
         queue.pop();
         return command;
     }
