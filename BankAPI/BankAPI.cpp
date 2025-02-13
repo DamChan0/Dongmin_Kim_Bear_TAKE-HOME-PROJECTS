@@ -20,7 +20,7 @@ std::string getExecutableDir()
 
 std::string BankAPI::getAccountFilePath()
 {
-    return getExecutableDir() + "/accountList.json";  // ✅ 실행 파일이 있는 경로 기준
+    return getExecutableDir() + "/accountList.json";
 }
 
 void to_json(nlohmann::json& j, const Account& account)

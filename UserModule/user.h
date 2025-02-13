@@ -20,7 +20,7 @@ class User
     void onPinVerificationResult(bool& pinVerified);
     void onCheckBalance(double balance);
 
-    void userInput();  // 사용자 입력을 처리하는 스레드 함수
+    void userInput();
 
    public:
     bool running = false;

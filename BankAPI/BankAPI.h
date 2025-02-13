@@ -23,8 +23,8 @@ class Account
 class BankAPI
 {
    private:
-    static std::map<std::string, Account> accounts;  // 계좌 목록 (카드번호 → 계좌 정보)
-    static std::mutex accountMutex;  // 멀티스레드 동시 접근 방지
+    static std::map<std::string, Account> accounts;
+    static std::mutex accountMutex;
 
     static void saveAccount(const std::string &cardNumber);
 
