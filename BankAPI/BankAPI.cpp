@@ -27,21 +27,31 @@ bool BankAPI::verifyPin(const std::string& cardNumber, uint64_t pinNum)
 {
     loadAccounts();
     std::lock_guard<std::mutex> lock(accountMutex);
-    if (accounts.find(cardNumber) == accounts.end())
+    if (accounts.find(cardNumber) != accounts.end())
     {
-        std::cout << "[BankAPI_ERROR] Account not found." << std::endl;
+        std::cout << "[BankAPI] Account is found." << std::endl;
+
+        if (accounts[cardNumber].pin != pinNum)
+        {
+            std::cout << "[BankAPI] Incorrect PIN." << std::endl;
+            return false;
+        }
+        else
+        {
+            std::cout << "[BankAPI] Correct PIN." << std::endl;
+            return true;
+        }
         return false;
     }
     else
     {
-        accounts[cardNumber].accountHolder = "test";
+        std::cout << "[BankAPI] Account not found." << std::endl;
     }
     return (pinNum == 1234);  // 더미 PIN 검증
 }
 
 bool BankAPI::withdraw(const std::string& cardNumber, double amount)
 {
-    std::lock_guard<std::mutex> lock(accountMutex);
     if (amount <= 0 || accounts[cardNumber].balance < amount)
     {
         std::cout
@@ -58,7 +68,6 @@ bool BankAPI::withdraw(const std::string& cardNumber, double amount)
 
 bool BankAPI::deposit(const std::string& cardNumber, double amount)
 {
-    std::lock_guard<std::mutex> lock(accountMutex);
     if (amount <= 0)
     {
         std::cout << "[BankAPI_ERROR] Invalid deposit amount." << std::endl;
