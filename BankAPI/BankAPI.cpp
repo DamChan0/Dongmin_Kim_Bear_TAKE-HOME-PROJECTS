@@ -1,15 +1,26 @@
 #include <BankAPI.h>
+#include <unistd.h>
 
 #include <iostream>
 #include <unordered_map>
+
+#define PATH_MAX 4096
 
 using njson = nlohmann::json;
 std::map<std::string, Account> BankAPI::accounts;
 std::mutex BankAPI::accountMutex;
 
+std::string getExecutableDir()
+{
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    std::string fullPath = (count != -1) ? std::string(result, count) : "";
+    return std::filesystem::path(fullPath).parent_path().string();
+}
+
 std::string BankAPI::getAccountFilePath()
 {
-    return std::filesystem::current_path().string() + "/accountList.json";
+    return getExecutableDir() + "/accountList.json";  // ✅ 실행 파일이 있는 경로 기준
 }
 
 void to_json(nlohmann::json& j, const Account& account)
