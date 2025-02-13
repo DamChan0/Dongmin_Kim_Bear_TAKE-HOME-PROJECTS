@@ -9,6 +9,20 @@ class FlowModule;
 
 class ATMStatus
 {
+   public:
+    ATMStatus(FlowModule& fm);
+    ~ATMStatus()
+    {
+        if (ATMThread.joinable())
+        {
+            ATMThread.join();
+        }
+    }
+
+    FlowModule& flowModule;
+    void processATMStatus();
+    bool isATMOff;
+
    private:
     bool isATMOn;
     bool isCardInserted;
@@ -22,7 +36,7 @@ class ATMStatus
 
     void setATMOn() { isATMOn = true; }
 
-    void setATMOff() { isATMOn = false; }
+    void setATMOff() { isATMOff = false; }
 
     void setCard() { isCardInserted = true; }
 
@@ -41,12 +55,6 @@ class ATMStatus
     bool getAccountSelectedStatus() const { return isAccountSelected; }
 
     void checkStatus();
-
-   public:
-    ATMStatus(FlowModule& fm);
-
-    FlowModule& flowModule;
-    void processATMStatus();
 };
 
 #endif  // ATMMODULE_H

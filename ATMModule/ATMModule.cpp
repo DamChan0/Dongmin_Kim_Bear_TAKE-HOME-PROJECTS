@@ -4,12 +4,7 @@
 
 #include <future>
 
-ATMStatus::ATMStatus(FlowModule &fm)
-    : isATMOn(false),
-      isCardInserted(false),
-      isPinEntered(false),
-      isAccountSelected(false),
-      flowModule(fm)
+ATMStatus::ATMStatus(FlowModule &fm) : flowModule(fm)
 {
     ATMThread = std::thread(&ATMStatus::processATMStatus, this);
 }
@@ -25,7 +20,6 @@ void ATMStatus::processATMStatus()
         }
 
         Command cmd = flowModule.commandQueue.pop();
-        // std::cout << "[ATM] Command received: " << cmd.RX << std::endl;
         if (cmd.RX != "ATM")
         {
             flowModule.commandQueue.push(cmd);
@@ -47,7 +41,8 @@ void ATMStatus::processATMStatus()
 
                 case CommandType::ATM_OFF:
                     setATMOff();
-                    break;
+                    std::cout << "[ATM] System is Terminating" << std::endl;
+                    return;
 
                 case CommandType::USER_INSERT_CARD:
                     if (getATMOnStatus())
@@ -72,6 +67,10 @@ void ATMStatus::processATMStatus()
 
                         if (cmd.callback != nullptr)
                         {
+                            if (pinVerified)
+                            {
+                                this->pinVerified = true;
+                            }
                             cmd.callback(pinVerified);
                         }
                     }
@@ -82,10 +81,14 @@ void ATMStatus::processATMStatus()
                     break;
 
                 case CommandType::USER_DEPOSIT:
-                    if (getPinEnteredStatus())
+                    if (this->pinVerified)
                     {
                         std::cout << "[ATM] Depositing $" << cmd.amount << " to "
                                   << cmd.cardNumber << std::endl;
+                        BankAPI::deposit(cmd.cardNumber, cmd.amount);
+                        double balance = BankAPI::getBalance(cmd.cardNumber);
+                        std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
+                                  << std::endl;
                     }
                     else
                     {
@@ -94,10 +97,14 @@ void ATMStatus::processATMStatus()
                     break;
 
                 case CommandType::USER_WITHDRAW:
-                    if (getPinEnteredStatus())
+                    if (this->pinVerified)
                     {
                         std::cout << "[ATM] Withdrawing $" << cmd.amount << " from "
                                   << cmd.cardNumber << std::endl;
+                        BankAPI::withdraw(cmd.cardNumber, cmd.amount);
+                        double balance = BankAPI::getBalance(cmd.cardNumber);
+                        std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
+                                  << std::endl;
                     }
                     else
                     {
@@ -118,9 +125,10 @@ void ATMStatus::processATMStatus()
                     break;
 
                 case CommandType::ATM_CHECK_BALANCE:
-                    if (getPinEnteredStatus())
+                    if (this->pinVerified)
                     {
-                        std::cout << "[ATM] Checking balance for " << cmd.cardNumber
+                        double balance = BankAPI::getBalance(cmd.cardNumber);
+                        std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
                                   << std::endl;
                     }
                     else
