@@ -21,33 +21,31 @@ enum class UserInput
 
 User::User(FlowModule& fm) : flowModule(fm), running(true)
 {
-    userThread = std::thread(&User::processUserInput, this);
+    userThread = std::thread(&User::userInput, this);
 }
 
-User::~User()
-{
-    running = false;
-    if (userThread.joinable())
-    {
-        userThread.join();
-    }
-}
-
-void User::onPinVerificationResult(bool pinVerified)
+void User::onPinVerificationResult(bool& pinVerified)
 {
     if (pinVerified)
     {
         std::cout << "[User] PIN Verified!" << std::endl;
         this->pinVerified = true;
+        isWaiting = false;
     }
     else
     {
         std::cout << "[User] PIN Incorrect!" << std::endl;
         this->pinVerified = false;
+        isWaiting = false;
     }
 }
 
-void User::processUserInput()
+void User::onCheckBalance(double balance)
+{
+    std::cout << "[User] Current Balance: $" << balance << std::endl;
+}
+
+void User::userInput()
 {
     std::cout << "Are you turn on ATM?" << std::endl;
     std::cout << "1. Yes\n2. No\nSelect an option: ";
@@ -77,20 +75,30 @@ void User::processUserInput()
     }
     std::cout << "[User] ATM is ON\n";
     std::cout << "running: " << running << std::endl;
+
     while (running)
     {
+        while (isWaiting)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
         std::cout << "\n1. Insert Card\n2. Enter PIN\n3. Deposit\n4. Withdraw\n5. Check "
                      "Balance\n6. Exit\nSelect an option: ";
 
         std::cout << "\n--- ATM STATUS ---\n";
         std::cout << "Card Inserted: " << (cardInserted ? "Yes" : "No") << "\n";
-        std::cout << "PIN Verified: " << (pinVerified ? "Yes" : "No") << "\n";
+        std::cout << "PIN Verified: " << (this->pinVerified ? "Yes" : "No") << "\n";
         std::cout << "Account Selected: " << (accountSelected ? "Yes" : "No") << "\n";
         std::cout << "------------------\n";
 
         int choice;
         std::cin >> choice;
-
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
         Command newCmd = {CommandType::UNKNOWN, "User", "FlowModule", "", 0, 0, NULL};
         UserInput input = static_cast<UserInput>(choice);
         std::promise<bool> pinPromise;
@@ -145,6 +153,7 @@ void User::processUserInput()
                           { onPinVerificationResult(pinVerified); }};
 
                 flowModule.addCommand(newCmd);
+                isWaiting = true;
 
                 break;
             }
@@ -195,17 +204,16 @@ void User::processUserInput()
                 }
                 else
                 {
-                    std::promise<double> balancePromise;
-                    std::future<double> balanceFuture = balancePromise.get_future();
+                    double balance = 0;
                     newCmd = {CommandType::ATM_CHECK_BALANCE,
                               "User",
                               "FlowModule",
                               cardNumber,
                               0,
                               0,
-                              &balancePromise};
+                              nullptr,
+                              [this](bool balance) { onCheckBalance(balance); }};
                     flowModule.addCommand({newCmd});
-                    double balance = balanceFuture.get();
 
                     std::cout << "[User] Current Balance: $" << balance << std::endl;
                 }
@@ -214,10 +222,20 @@ void User::processUserInput()
             case UserInput::EXIT:
                 std::cout << "Exiting ATM..." << std::endl;
                 running = false;
-                break;
+                newCmd = {CommandType::ATM_OFF,
+                          "User",
+                          "ATM",
+                          cardNumber,
+                          0,
+                          0,
+                          nullptr,
+                          nullptr};
+                flowModule.addCommand(newCmd);
+                return;
 
             default:
                 std::cout << "[ERROR] Invalid option. Try again." << std::endl;
+                break;
         }
     }
 }

@@ -13,17 +13,26 @@ class User
     std::thread userThread;
     std::string cardNumber;
     bool cardInserted = false;
-    bool running = false;
     bool pinVerified = false;
     bool accountSelected = false;
+    bool isWaiting = false;
 
-    void onPinVerificationResult(bool pinVerified);
+    void onPinVerificationResult(bool& pinVerified);
+    void onCheckBalance(double balance);
 
-    void processUserInput();  // 사용자 입력을 처리하는 스레드 함수
+    void userInput();  // 사용자 입력을 처리하는 스레드 함수
 
    public:
+    bool running = false;
     User(FlowModule& fm);
-    ~User();
+    ~User()
+    {
+        running = false;
+        if (userThread.joinable())
+        {
+            userThread.join();
+        }
+    }
 };
 
 #endif  // USER_H
