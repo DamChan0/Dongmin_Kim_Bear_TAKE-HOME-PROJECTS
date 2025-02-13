@@ -31,3 +31,10 @@ file(GLOB SRC_FILES
     "${CMAKE_SOURCE_DIR}/main.cpp"
 )
 add_executable(ATMController ${SRC_FILES})
+
+# accountList.json 파일을 빌드 출력 디렉토리에 복사
+add_custom_command(TARGET ATMController POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/accountList.json"
+    $<TARGET_FILE_DIR:ATMController>/accountList.json
+)
