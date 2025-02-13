@@ -52,6 +52,8 @@ bool BankAPI::verifyPin(const std::string& cardNumber, uint64_t pinNum)
 
 bool BankAPI::withdraw(const std::string& cardNumber, double amount)
 {
+    std::unique_lock<std::mutex> lock(accountMutex);
+
     if (amount <= 0 || accounts[cardNumber].balance < amount)
     {
         std::cout
@@ -60,6 +62,7 @@ bool BankAPI::withdraw(const std::string& cardNumber, double amount)
         return false;
     }
     accounts[cardNumber].balance -= amount;
+    lock.unlock();
     saveAccounts();
     std::cout << "[Bank] Withdrawn $" << amount << " from " << cardNumber
               << ". New Balance: $" << accounts[cardNumber].balance << std::endl;
@@ -68,12 +71,14 @@ bool BankAPI::withdraw(const std::string& cardNumber, double amount)
 
 bool BankAPI::deposit(const std::string& cardNumber, double amount)
 {
+    std::unique_lock<std::mutex> lock(accountMutex);
     if (amount <= 0)
     {
         std::cout << "[BankAPI_ERROR] Invalid deposit amount." << std::endl;
         return false;
     }
     accounts[cardNumber].balance += amount;
+    lock.unlock();
     saveAccounts();
     std::cout << "[Bank] Deposited $" << amount << " to " << cardNumber
               << ". New Balance: $" << accounts[cardNumber].balance << std::endl;
