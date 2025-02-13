@@ -7,6 +7,11 @@ using njson = nlohmann::json;
 std::map<std::string, Account> BankAPI::accounts;
 std::mutex BankAPI::accountMutex;
 
+std::string BankAPI::getAccountFilePath()
+{
+    return std::filesystem::current_path().string() + "/accountList.json";
+}
+
 void to_json(nlohmann::json& j, const Account& account)
 {
     j = {{"accountHolder", account.accountHolder},
@@ -63,7 +68,7 @@ bool BankAPI::withdraw(const std::string& cardNumber, double amount)
     }
     accounts[cardNumber].balance -= amount;
     lock.unlock();
-    saveAccounts();
+    saveAccount(cardNumber);
     std::cout << "[Bank] Withdrawn $" << amount << " from " << cardNumber
               << ". New Balance: $" << accounts[cardNumber].balance << std::endl;
     return true;
@@ -79,7 +84,7 @@ bool BankAPI::deposit(const std::string& cardNumber, double amount)
     }
     accounts[cardNumber].balance += amount;
     lock.unlock();
-    saveAccounts();
+    saveAccount(cardNumber);
     std::cout << "[Bank] Deposited $" << amount << " to " << cardNumber
               << ". New Balance: $" << accounts[cardNumber].balance << std::endl;
     return true;
@@ -94,6 +99,7 @@ double BankAPI::getBalance(const std::string& cardNumber)
 void BankAPI::loadAccounts()
 {
     std::lock_guard<std::mutex> lock(accountMutex);
+    std::string ACCOUNT_FILE = getAccountFilePath();
     std::fstream file(ACCOUNT_FILE, std::ios::in);
     if (!file.is_open())
     {
@@ -118,22 +124,35 @@ void BankAPI::loadAccounts()
     std::cout << "[Bank] Loaded " << accounts.size() << " accounts." << std::endl;
 }
 
-void BankAPI::saveAccounts()
+void BankAPI::saveAccount(const std::string& cardNumber)
 {
     std::lock_guard<std::mutex> lock(accountMutex);
-    nlohmann::json jsonData;
+    std::string ACCOUNT_FILE = getAccountFilePath();
 
-    for (const auto& accountPair : accounts)
+    std::ifstream inFile(ACCOUNT_FILE);
+    nlohmann::json jsonData;
+    if (inFile.is_open())
     {
-        jsonData[accountPair.first] = accountPair.second;
+        inFile >> jsonData;
+        inFile.close();
     }
 
-    std::ofstream file(ACCOUNT_FILE);
-    if (!file.is_open())
+    if (accounts.find(cardNumber) != accounts.end())
+    {
+        jsonData[cardNumber] = accounts[cardNumber];
+    }
+    else
+    {
+        std::cerr << "[BankAPI] Account not found: " << cardNumber << std::endl;
+        return;
+    }
+
+    std::ofstream outFile(ACCOUNT_FILE);
+    if (!outFile.is_open())
     {
         std::cerr << "[BankAPI] Failed to save account database." << std::endl;
         return;
     }
-    file << jsonData.dump(4);
-    file.close();
+    outFile << jsonData.dump(4);
+    outFile.close();
 }

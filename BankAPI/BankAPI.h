@@ -25,12 +25,13 @@ class BankAPI
    private:
     static std::map<std::string, Account> accounts;  // 계좌 목록 (카드번호 → 계좌 정보)
     static std::mutex accountMutex;  // 멀티스레드 동시 접근 방지
-    static constexpr const char *ACCOUNT_FILE = "accountList.json";
 
-    static void saveAccounts();
+    static void saveAccount(const std::string &cardNumber);
 
    public:
     static void loadAccounts();
+    static std::string getAccountFilePath();
+
     static bool verifyPin(const std::string &cardNumber, uint64_t pin);
     static bool deposit(const std::string &cardNumber, double amount);
     static bool withdraw(const std::string &cardNumber, double amount);
