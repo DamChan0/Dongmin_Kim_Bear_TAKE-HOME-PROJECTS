@@ -17,6 +17,7 @@ enum class UserInput
     WITHDRAW,
     CHECK_BALANCE,
     SELECT_ACCOUNT,
+    RESET,
     EXIT
 };
 
@@ -97,7 +98,7 @@ void User::userInput()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         std::cout << "\n1. Insert Card\n2. Enter PIN\n3. Deposit\n4. Withdraw\n5. Check "
-                     "Balance\n6. Select Account\n7. Exit\n";
+                     "Balance\n6. Select Account\n7. Reset\n8. Exit\n";
 
         std::cout << "\n--- ATM STATUS ---\n";
         std::cout << "Card Inserted: " << (cardInserted ? "Yes" : "No") << "\n";
@@ -237,7 +238,7 @@ void User::userInput()
                               0,
                               0,
                               nullptr,
-                              [this](bool balance) { onCheckBalance(balance); },
+                              std::bind(&User::onCheckBalance, this, balance),
                               this->accountNumber};
 
                     flowModule.addCommand({newCmd});
@@ -255,33 +256,41 @@ void User::userInput()
                 }
                 if (accountSelected)
                 {
-                    std::cout << "[ERROR] Account is already selected!" << std::endl;
-                    break;
+                    std::cout << "[USER] Account is already selected!" << std::endl;
+                    std::cout << "Do you want to select another account?" << std::endl;
+                    std::cout << "1. Yes\n2. No\nSelect an option: ";
+                    int choice;
+                    std::cin >> choice;
+                    if (choice == 2)
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    newCmd = {CommandType::ATM_LOAD_ACCOUNT_INFO,
-                              "User",
-                              "FlowModule",
-                              cardNumber,
-                              0,
-                              0,
-                              nullptr,
-                              nullptr};
-                    flowModule.addCommand(newCmd);
-                }
-                std::cout << "Enter account number: ";
-                std::cin >> accountNumber;
-                newCmd = {CommandType::USER_SELECT_ACCOUNT,
+
+                newCmd = {CommandType::ATM_LOAD_ACCOUNT_INFO,
                           "User",
                           "FlowModule",
                           cardNumber,
                           0,
                           0,
                           nullptr,
-                          [this](uint64_t accountNumber)
-                          { onSelectedAccount(accountNumber); },
-                          accountNumber};
+                          nullptr};
+                flowModule.addCommand(newCmd);
+
+                std::cout << "Enter account number: ";
+                uint64_t selectedAccountNumber;
+                std::cin >> selectedAccountNumber;
+                newCmd = Command{
+                    CommandType::USER_SELECT_ACCOUNT,
+                    "User",
+                    "FlowModule",
+                    cardNumber,
+                    0,
+                    0,
+                    nullptr,
+                    std::bind(&User::onSelectedAccount, this, std::placeholders::_1),
+                    selectedAccountNumber};
+
                 flowModule.addCommand(newCmd);
                 isWaiting = true;
                 break;
@@ -299,6 +308,26 @@ void User::userInput()
                           nullptr};
                 flowModule.addCommand(newCmd);
                 return;
+
+            case UserInput::RESET:
+                std::cout << "Resetting INFO..." << std::endl;
+                newCmd = {CommandType::ATM_RESET_INFO,
+                          "User",
+                          "ATM",
+                          cardNumber,
+                          0,
+                          0,
+                          nullptr,
+                          nullptr,
+                          0};
+                flowModule.addCommand(newCmd);
+                this->accountNumber = 0;
+                this->cardNumber = "";
+                this->pinVerified = false;
+                this->accountSelected = false;
+                this->cardInserted = false;
+                break;
+
             default:
                 std::cout << "[ERROR] Invalid option. Try again." << std::endl;
                 break;

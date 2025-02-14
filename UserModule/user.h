@@ -11,7 +11,7 @@ class User
    private:
     FlowModule& flowModule;
     std::thread userThread;
-    std::string cardNumber;
+    std::string cardNumber = "";
     uint64_t accountNumber = 0;
     bool cardInserted = false;
     bool pinVerified = false;
