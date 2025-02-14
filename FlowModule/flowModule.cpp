@@ -81,9 +81,12 @@ void FlowModule::processCommands()
                                   "FlowModule",
                                   "ATM",
                                   cmd.cardNumber,
-                                  0,
+                                  cmd.pin,
                                   cmd.amount,
-                                  NULL};
+                                  cmd.data,
+                                  cmd.callback,
+                                  cmd.accountNumber};
+
                         commandQueue.push(newCmd);
                         break;
 
@@ -94,9 +97,11 @@ void FlowModule::processCommands()
                                   "FlowModule",
                                   "ATM",
                                   cmd.cardNumber,
-                                  0,
+                                  cmd.pin,
                                   cmd.amount,
-                                  NULL};
+                                  cmd.data,
+                                  cmd.callback,
+                                  cmd.accountNumber};
                         commandQueue.push(newCmd);
                         break;
 

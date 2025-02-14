@@ -189,7 +189,9 @@ void User::userInput()
                           cardNumber,
                           0,
                           depositAmount,
-                          NULL};
+                          NULL,
+                          0,
+                          this->accountNumber};
                 flowModule.addCommand(newCmd);
                 break;
 
@@ -208,14 +210,21 @@ void User::userInput()
                           cardNumber,
                           0,
                           withdrawAmount,
-                          NULL};
+                          NULL,
+                          0,
+                          this->accountNumber};
                 flowModule.addCommand(newCmd);
                 break;
 
             case UserInput::CHECK_BALANCE:
-                if (!pinVerified && !accountSelected)
+                if (!pinVerified)
                 {
                     std::cout << "[ERROR] Please verify your PIN first!" << std::endl;
+                    break;
+                }
+                if (!accountSelected)
+                {
+                    std::cout << "[ERROR] Please select an account first!" << std::endl;
                     break;
                 }
                 else
@@ -239,9 +248,14 @@ void User::userInput()
 
             case UserInput::SELECT_ACCOUNT:
 
-                if (!pinVerified || accountSelected)
+                if (!pinVerified)
                 {
                     std::cout << "[ERROR] Please verify your PIN first!" << std::endl;
+                    break;
+                }
+                if (accountSelected)
+                {
+                    std::cout << "[ERROR] Account is already selected!" << std::endl;
                     break;
                 }
                 else
