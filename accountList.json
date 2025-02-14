@@ -1,13 +1,24 @@
 {
-    "1":{   "cardNumber": "1234567890",
-        "accountHolder": "John Doe",
-        "pin": 1234,
-        "balance": 1000.0
-    },
-    "2": {
-        "cardNumber": "0987654321",
-        "accountHolder": "Jane Smith",
-        "pin": 4321,
-        "balance": 2500.0   
-     }
+    "1234567890": [
+        {
+            "accountNumber": "1",
+            "accountHolder": "DongMin Kim",
+            "pin": 1234,
+            "balance": 1000.0
+        },
+        {
+            "accountNumber": "2",
+            "accountHolder": "DongMin Kim",
+            "pin": 1234,
+            "balance": 1000.0
+        }
+    ],
+    "0987654321": [
+        {
+            "accountNumber": "3",
+            "accountHolder": "Baer Robotics",
+            "pin": 4321,
+            "balance": 2500.0
+        }
+    ]
 }
