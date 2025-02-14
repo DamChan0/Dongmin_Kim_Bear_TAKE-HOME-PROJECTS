@@ -12,6 +12,7 @@ enum class CommandType
     USER_VERIFY_PIN,
     USER_DEPOSIT,
     USER_WITHDRAW,
+    USER_SELECT_ACCOUNT,
     ATM_ON,
     ATM_OFF,
     ATM_DEPOSIT,
@@ -31,6 +32,7 @@ struct Command
     double amount = 0;
     std::any data;
     std::function<void(bool)> callback = nullptr;
+    uint64_t accountNumber = 0;
 };
 
 class FlowModule
