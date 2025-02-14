@@ -85,8 +85,9 @@ void ATMStatus::processATMStatus()
                     {
                         std::cout << "[ATM] Depositing $" << cmd.amount << " to "
                                   << cmd.cardNumber << std::endl;
-                        BankAPI::deposit(cmd.cardNumber, cmd.amount);
-                        double balance = BankAPI::getBalance(cmd.cardNumber);
+                        BankAPI::deposit(cmd.cardNumber, cmd.accountNumber, cmd.amount);
+                        double balance =
+                            BankAPI::getBalance(cmd.cardNumber, cmd.accountNumber);
                         std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
                                   << std::endl;
                     }
@@ -101,8 +102,9 @@ void ATMStatus::processATMStatus()
                     {
                         std::cout << "[ATM] Withdrawing $" << cmd.amount << " from "
                                   << cmd.cardNumber << std::endl;
-                        BankAPI::withdraw(cmd.cardNumber, cmd.amount);
-                        double balance = BankAPI::getBalance(cmd.cardNumber);
+                        BankAPI::withdraw(cmd.cardNumber, cmd.accountNumber, cmd.amount);
+                        double balance =
+                            BankAPI::getBalance(cmd.cardNumber, cmd.accountNumber);
                         std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
                                   << std::endl;
                     }
@@ -112,11 +114,34 @@ void ATMStatus::processATMStatus()
                     }
                     break;
 
+                case CommandType::USER_SELECT_ACCOUNT:
+                    if (this->pinVerified)
+                    {
+                        bool checkAccount =
+                            BankAPI::selectAccount(cmd.cardNumber, cmd.accountNumber);
+                        if (checkAccount)
+                        {
+                            cmd.callback(cmd.accountNumber);
+                            std::cout << "[ATM] Selecting account for " << cmd.cardNumber
+                                      << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "[ATM] Account not found for " << cmd.cardNumber
+                                      << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "[ATM] Please verify your PIN first." << std::endl;
+                    }
+                    break;
                 case CommandType::ATM_LOAD_ACCOUNT_INFO:
                     if (getPinEnteredStatus())
                     {
                         std::cout << "[ATM] Loading account info for " << cmd.cardNumber
                                   << std::endl;
+                        BankAPI::diplayAccount(cmd.cardNumber);
                     }
                     else
                     {
@@ -127,9 +152,11 @@ void ATMStatus::processATMStatus()
                 case CommandType::ATM_CHECK_BALANCE:
                     if (this->pinVerified)
                     {
-                        double balance = BankAPI::getBalance(cmd.cardNumber);
-                        std::cout << "[ATM]" << cmd.cardNumber << " balance: $" << balance
-                                  << std::endl;
+                        double balance =
+                            BankAPI::getBalance(cmd.cardNumber, cmd.accountNumber);
+                        std::cout << "[ATM]" << "Card Number : " << cmd.cardNumber
+                                  << " Account Number : " << cmd.accountNumber
+                                  << " balance: $" << balance << std::endl;
                     }
                     else
                     {
