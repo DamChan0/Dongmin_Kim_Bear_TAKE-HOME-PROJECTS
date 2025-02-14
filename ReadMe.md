@@ -41,6 +41,4 @@ Starting ATM is needed
 
 ---
 # SW Architecture Block Diagram
-
-
-    ![atmStructure](https://github.com/user-attachments/assets/dea86ab3-000c-4bdb-bb1b-191dba5df081)
+![atmStructure](https://github.com/user-attachments/assets/dea86ab3-000c-4bdb-bb1b-191dba5df081)
