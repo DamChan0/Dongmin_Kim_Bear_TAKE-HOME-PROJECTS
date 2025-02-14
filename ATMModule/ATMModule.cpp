@@ -127,6 +127,7 @@ void ATMStatus::processATMStatus()
                         }
                         else
                         {
+                            cmd.callback(false);
                             std::cout << "[ATM] Account not found for " << cmd.cardNumber
                                       << std::endl;
                         }
@@ -136,6 +137,7 @@ void ATMStatus::processATMStatus()
                         std::cout << "[ATM] Please verify your PIN first." << std::endl;
                     }
                     break;
+
                 case CommandType::ATM_LOAD_ACCOUNT_INFO:
                     if (getPinEnteredStatus())
                     {
@@ -162,6 +164,11 @@ void ATMStatus::processATMStatus()
                     {
                         std::cout << "[ATM] Please verify your PIN first." << std::endl;
                     }
+                    break;
+                case CommandType ::ATM_RESET_INFO:
+                    resetPin();
+                    resetAccount();
+                    removeCard();
                     break;
                 default:
                     break;

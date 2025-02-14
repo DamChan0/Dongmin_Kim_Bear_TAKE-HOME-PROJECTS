@@ -19,6 +19,7 @@ enum class CommandType
     ATM_WITHDRAW,
     ATM_LOAD_ACCOUNT_INFO,
     ATM_CHECK_BALANCE,
+    ATM_RESET_INFO,
     UNKNOWN,
 };
 
