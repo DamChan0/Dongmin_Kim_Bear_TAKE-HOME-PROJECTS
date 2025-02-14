@@ -12,6 +12,7 @@ class User
     FlowModule& flowModule;
     std::thread userThread;
     std::string cardNumber;
+    uint64_t accountNumber = 0;
     bool cardInserted = false;
     bool pinVerified = false;
     bool accountSelected = false;
@@ -19,6 +20,7 @@ class User
 
     void onPinVerificationResult(bool& pinVerified);
     void onCheckBalance(double balance);
+    void onSelectedAccount(uint64_t accountNumber);
 
     void userInput();
 

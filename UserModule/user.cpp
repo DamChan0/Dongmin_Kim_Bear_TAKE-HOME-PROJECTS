@@ -16,6 +16,7 @@ enum class UserInput
     DEPOSIT,
     WITHDRAW,
     CHECK_BALANCE,
+    SELECT_ACCOUNT,
     EXIT
 };
 
@@ -39,7 +40,22 @@ void User::onPinVerificationResult(bool& pinVerified)
         isWaiting = false;
     }
 }
-
+void User::onSelectedAccount(uint64_t accountNumber)
+{
+    if (accountNumber)
+    {
+        std::cout << "[User] Account Selected!" << std::endl;
+        this->accountSelected = true;
+        this->accountNumber = accountNumber;
+        isWaiting = false;
+    }
+    else
+    {
+        std::cout << "[User] Account not found!" << std::endl;
+        this->accountSelected = false;
+        isWaiting = false;
+    }
+}
 void User::onCheckBalance(double balance)
 {
     std::cout << "[User] Current Balance: $" << balance << std::endl;
@@ -61,11 +77,11 @@ void User::userInput()
         running = atmOnFuture.get();
         if (running)
         {
-            std::cout << "[ATM] System is now ON" << std::endl;
+            std::cout << "[User] System is now ON" << std::endl;
         }
         else
         {
-            std::cout << "[ATM] Failed to start" << std::endl;
+            std::cout << "[User] Failed to start" << std::endl;
         }
     }
     else
@@ -73,8 +89,6 @@ void User::userInput()
         std::cout << "ATM is off" << std::endl;
         return;
     }
-    std::cout << "[User] ATM is ON\n";
-    std::cout << "running: " << running << std::endl;
 
     while (running)
     {
@@ -83,13 +97,15 @@ void User::userInput()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         std::cout << "\n1. Insert Card\n2. Enter PIN\n3. Deposit\n4. Withdraw\n5. Check "
-                     "Balance\n6. Exit\nSelect an option: ";
+                     "Balance\n6. Select Account\n7. Exit\n";
 
         std::cout << "\n--- ATM STATUS ---\n";
         std::cout << "Card Inserted: " << (cardInserted ? "Yes" : "No") << "\n";
         std::cout << "PIN Verified: " << (this->pinVerified ? "Yes" : "No") << "\n";
         std::cout << "Account Selected: " << (accountSelected ? "Yes" : "No") << "\n";
         std::cout << "------------------\n";
+
+        std::cout << "Select an option: " << std::endl;
 
         int choice;
         std::cin >> choice;
@@ -197,7 +213,7 @@ void User::userInput()
                 break;
 
             case UserInput::CHECK_BALANCE:
-                if (!pinVerified)
+                if (!pinVerified && !accountSelected)
                 {
                     std::cout << "[ERROR] Please verify your PIN first!" << std::endl;
                     break;
@@ -212,11 +228,48 @@ void User::userInput()
                               0,
                               0,
                               nullptr,
-                              [this](bool balance) { onCheckBalance(balance); }};
+                              [this](bool balance) { onCheckBalance(balance); },
+                              this->accountNumber};
+
                     flowModule.addCommand({newCmd});
 
                     std::cout << "[User] Current Balance: $" << balance << std::endl;
                 }
+                break;
+
+            case UserInput::SELECT_ACCOUNT:
+
+                if (!pinVerified || accountSelected)
+                {
+                    std::cout << "[ERROR] Please verify your PIN first!" << std::endl;
+                    break;
+                }
+                else
+                {
+                    newCmd = {CommandType::ATM_LOAD_ACCOUNT_INFO,
+                              "User",
+                              "FlowModule",
+                              cardNumber,
+                              0,
+                              0,
+                              nullptr,
+                              nullptr};
+                    flowModule.addCommand(newCmd);
+                }
+                std::cout << "Enter account number: ";
+                std::cin >> accountNumber;
+                newCmd = {CommandType::USER_SELECT_ACCOUNT,
+                          "User",
+                          "FlowModule",
+                          cardNumber,
+                          0,
+                          0,
+                          nullptr,
+                          [this](uint64_t accountNumber)
+                          { onSelectedAccount(accountNumber); },
+                          accountNumber};
+                flowModule.addCommand(newCmd);
+                isWaiting = true;
                 break;
 
             case UserInput::EXIT:
@@ -232,7 +285,6 @@ void User::userInput()
                           nullptr};
                 flowModule.addCommand(newCmd);
                 return;
-
             default:
                 std::cout << "[ERROR] Invalid option. Try again." << std::endl;
                 break;
