@@ -39,5 +39,8 @@ Starting ATM is needed
         3. Balance: 2000    
         4. holder name: Baer Robotics
 
+---
+# SW Architecture Block Diagram
 
-    
+
+    ![atmStructure](https://github.com/user-attachments/assets/dea86ab3-000c-4bdb-bb1b-191dba5df081)
