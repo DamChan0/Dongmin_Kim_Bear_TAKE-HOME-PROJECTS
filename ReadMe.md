@@ -56,3 +56,14 @@ Starting ATM is needed so press 1 to start ATM
 # SW Architecture Block Diagram
 
 ![atmStructure](https://github.com/user-attachments/assets/dea86ab3-000c-4bdb-bb1b-191dba5df081)
+
+
+
+
+
+# Patch 
+
+- 2025.03.02 patch <span style="color:red;">[critical]</span>
+  - ubuntu 24.04 환경의 경우 #include<any>를 포함하지 않아도 빌드가 가능하지만 22.04이하의 버전에서는 명시적 include 없이는 빌드가 불가능한 문제가 있음
+  - patch 내용
+    - +++ #include<any>
