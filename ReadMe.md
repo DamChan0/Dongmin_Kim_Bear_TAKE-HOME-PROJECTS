@@ -64,6 +64,7 @@ Starting ATM is needed so press 1 to start ATM
 # Patch 
 
 - 2025.03.02 patch <span style="color:red;">[critical]</span>
-  - ubuntu 24.04 환경의 경우 #include<any>를 포함하지 않아도 빌드가 가능하지만 22.04이하의 버전에서는 명시적 include 없이는 빌드가 불가능한 문제가 있음
-  - patch 내용
-    - +++ #include<any>
+  - ubuntu 24.04 / g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0 컴파일 환경의 경우 #include<any>를 포함하지 않아도 빌드가 가능했지만 22.04이하의 버전에서는 명시적 include 없이는 빌드가 불가능한 문제가 있음 그와 별개로 사용하는 std library는 명시하는 것이 옳기 때문에 수정하였음
+    - patch 내용
+      - <span style="color:green;">+++ #include<any></span>
+--- 
