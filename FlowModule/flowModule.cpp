@@ -45,14 +45,19 @@ void FlowModule::processCommands()
                 {
                     case CommandType::USER_INSERT_CARD:
                         // std::cout << "[FlowModule] Inserting card: " << cmd.cardNumber
-                        //   << std::endl;
-                        newCmd = {CommandType::USER_INSERT_CARD,
-                                  "FlowModule",
-                                  "ATM",
-                                  cmd.cardNumber,
-                                  0,
-                                  0,
-                                  NULL};
+
+                        newCmd = {.type = CommandType::USER_INSERT_CARD,
+                                  .TX = "FlowModule",
+                                  .RX = "ATM",
+                                  .cardNumber = cmd.cardNumber,
+                                  .pin = 0,
+                                  .amount = 0,
+                                  .data = NULL,
+                                  .callback = NULL,
+                                  .accountNumber = 0
+
+                        };
+
                         commandQueue.push(newCmd);
                         break;
 

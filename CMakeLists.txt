@@ -4,9 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 project(ATMController)
 
 # C++ 표준 설정
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # 컴파일 옵션 설정
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror ")
 
