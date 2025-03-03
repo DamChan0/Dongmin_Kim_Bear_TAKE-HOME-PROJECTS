@@ -4,7 +4,7 @@
 #include <commandQueue.h>
 #include <user.h>
 
-// #include <any>
+#include <any>
 #include <thread>
 
 enum class CommandType
@@ -39,18 +39,18 @@ struct Command
 
 class FlowModule
 {
-   private:
+  private:
     bool running;
     std::thread flowThread;
 
     void processCommands();
 
-   public:
+  public:
     CommandQueue<Command> commandQueue;
     FlowModule();
     ~FlowModule();
 
-    void addCommand(const Command& cmd);
+    void addCommand(const Command &cmd);
 };
 
-#endif  // FLOWMODULE_H
+#endif // FLOWMODULE_H
